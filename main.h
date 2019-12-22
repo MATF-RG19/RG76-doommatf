@@ -1,9 +1,10 @@
 #ifdef _DOOM_H
 #define _DOOM_H
 
-#define FILENAME0 "tree.bmp"
-#define FILENAME1 "grass.bmp"
+#define FILENAME0 "wall.bmp"
+#define FILENAME1 "floor.bmp"
 #define FILENAME2 "sky.bmp"
+#define FILENAME3 "well.bmp"
 
 static GLuint names[3];
 static int window_width, window_height;

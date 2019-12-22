@@ -48,7 +48,7 @@ void image_read(Image *image, char *filename) {
   image->pixels = NULL;
 
   
-  assert((file = fopen(filename, "rb")) != NULL);
+  file = fopen(filename, "rb");
 
 
   fread(&bfh.type, 2, 1, file);
