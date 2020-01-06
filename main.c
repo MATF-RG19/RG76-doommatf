@@ -5,6 +5,8 @@
 
 #include "image.h"
 #include "main.h"
+#include "light.h"
+#include "axis.h"
 
 #define FILENAME0 "wall.bmp"
 #define FILENAME1 "floor.bmp"
@@ -55,23 +57,10 @@ int main(int argc, char **argv)
     glutPassiveMotionFunc(on_mouse_motion);
     initialize();//Teksture
 
-     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1);
 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
-    float light_position[] = {-1, 3, 2, 1};
-    float light_ambient[] = {.3f, .3f, .3f, 1};
-    float light_diffuse[] = {.7f, .7f, .7f, 1};
-    float light_specular[] = {.7f, .7f, .7f, 1};
-
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-     
     glClearColor(0, 0, 0, 0);
-    glEnable(GL_DEPTH_TEST | GL_COLOR_MATERIAL);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_COLOR_MATERIAL);
    
     glutMainLoop();
  return 0;   
@@ -82,7 +71,6 @@ static void on_reshape(int width, int height){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(90, (float)width/height, 0.1, 100);
-  //glFrustum(-1, 1, -1, 1, 1, 10);
 }
 static void initialize(void){
   Image *image;
@@ -93,7 +81,6 @@ static void initialize(void){
 
 
   glEnable(GL_NORMALIZE);
-  //glEnable(GL_COLOR_MATERIAL);
   glEnable(GL_TEXTURE_2D);
 
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -101,7 +88,7 @@ image = image_init(0, 0);
 
 image_read(image, FILENAME0);
 
-glGenTextures(3, names);
+glGenTextures(4, names);
 
  glBindTexture(GL_TEXTURE_2D, names[0]);
     glTexParameteri(GL_TEXTURE_2D,
@@ -207,7 +194,6 @@ static void on_keyboard(unsigned char key, int xx, int yy){
           break;
       x += lx*fraction;
       z += lz*fraction;
-      printf("%lf %lf %lf\n", angle, lx, lz);
     break;
     case 's':
      
@@ -215,15 +201,12 @@ static void on_keyboard(unsigned char key, int xx, int yy){
           break;
 
         if (((z+lz*fraction)  + lz) <= -7.9 || ((z+lz*fraction)  + lz) >= 7.9)
-          break;
-       //printf("%lf %lf %lf\n", angle, lx, lz);
-     
+          break;     
       x -= lx*fraction;
       z -= lz*fraction;
       break;
     case 'g':
     lookx += 1;
-    printf("%lf\n", lookx);
     break;
     //Pritiskom enter demon pocinje da se krece
      case 13:
@@ -289,18 +272,42 @@ static void on_mouse_motion(int x, int y){
   glutPostRedisplay();
 }
 void draw_well(){      
-  glBindTexture(GL_TEXTURE_2D, names[3]);
   glPushMatrix();
-  glRotatef(-90, 1, 0, 0);
-  GLUquadric *quad;
-  quad = gluNewQuadric();
-  gluCylinder(quad, 1, 0.6, 0.8, 30, 30);
+  glColor3f(0, 0, 0);
+  glScalef(0.7, 1, 0.5);
+  glutSolidCube(2);
+  glPopMatrix();
+
+  glColor3f(212, 175, 0);
+  glPushMatrix();
+  glTranslatef(0.55, 1, 0.1);
+  glScalef(0.1, 0.1, 0.4);
+  glutSolidCube(3);
+  glPopMatrix();
+
+
+  glPushMatrix();
+  glTranslatef(-0.55, 1, 0.1);
+  glScalef(0.1, 0.1, 0.4);
+  glutSolidCube(3);
+  glPopMatrix();
+
+
+  glPushMatrix();
+  glColor3f(1, 0, 0);
+  glTranslatef(0, 1, -0.4);
+  glScalef(1, 1.8, 0.2);
+  glutSolidCube(1);
   glPopMatrix();
 }
 
 void draw_dagger(){
+    glPushMatrix();
+    glTranslatef(x + 0.2, .8f, z - 0.2);
+    glRotatef(angle*100, x*100+lx, 1.0f + ly, z*100+lz);
+    glScalef(0.7, 0.7, 0.7);
     glScalef(0.2, 0.2, 0.2);
-    glTranslatef(1, 4.0f, 23.6);
+    //glTranslatef(1, 4.0f, 23.6);
     glRotatef(90, 1, 0, 0);
     glPushMatrix();
        glPushMatrix();
@@ -310,15 +317,6 @@ void draw_dagger(){
   
     double clipping[] = {0, 1, 0, 0};
     
-    GLfloat ambient1[] = {0.3,0.3,0.3,0};
-    GLfloat diffuse1[] = {0.7,0,0,0};
-    GLfloat specular1[] = {0.6,0.6,0.6,0};
-    GLfloat shininess1 = 80;
-
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient1);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse1);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular1);
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess1);
     glClipPlane(GL_CLIP_PLANE0, clipping);
     glEnable(GL_CLIP_PLANE0);
     glScalef(0.6, 4, 0.6);
@@ -331,6 +329,9 @@ void draw_dagger(){
     glutSolidCube(1);
     glPopMatrix();
 
+    glPopMatrix();
+
+
 }
 void draw_demon(){
    // glScalef(5, 5, 5);
@@ -339,6 +340,7 @@ void draw_demon(){
 
     
    //rogovi
+   glColor3f(0, 0, 0);
     glPushMatrix();
     glRotatef(-90, 1, 0, 0);
     glTranslatef(-0.08, 0, 1.6);
@@ -350,7 +352,7 @@ void draw_demon(){
     glTranslatef(0.08, 0, 1.6);
     glutSolidCone(0.05, 0.2, 30, 30);
     glPopMatrix();
-
+    glColor3f(1, 0, 0);
     //glava
     glPushMatrix();
     glTranslatef(0, 1.5, 0);
@@ -358,7 +360,6 @@ void draw_demon(){
     glPopMatrix();
     
     //telo
-    glColor3f(1, 0, 0);
     glPushMatrix();
     glTranslatef(0, 0.9, 0);
     glScalef(0.6, 0.7, 0.3);
@@ -367,22 +368,22 @@ void draw_demon(){
     
     glPushMatrix();
     glTranslatef(0.37, 1.1, 0);
-    glRotatef(30*cos(8*pi*animation_parameter/240), 1, 0, 0);
+    glRotatef(30*cos(8*pi*animation_parameter/180), 1, 0, 0);
     glScalef(0.2, 0.6, 0.2);
     glutSolidCube(0.6);
     glPopMatrix();
     
     glPushMatrix();
     glTranslatef(-0.34, 1.1, 0);
-    glRotatef(-30*cos(8*pi*animation_parameter/240), 1, 0, 0);
+    glRotatef(-30*cos(8*pi*animation_parameter/180), 1, 0, 0);
     glScalef(0.2, 0.6, 0.2);
     glutSolidCube(0.6);
     glPopMatrix();
     
-    glColor3f(0,0,1);
+    glColor3f(0, 0, 0);
     glPushMatrix();
     glTranslatef(0.1, 0.4, 0);
-    glRotatef(-30*cos(8*pi*animation_parameter/240), 1, 0, 0);
+    glRotatef(-30*cos(8*pi*animation_parameter/180), 1, 0, 0);
     glScalef(0.3, 0.9, 0.3);
     glutSolidCube(0.6);
     glPopMatrix();
@@ -390,7 +391,7 @@ void draw_demon(){
     
     glPushMatrix();
     glTranslatef(-0.1, 0.4, 0);
-    glRotatef(30*cos(8*pi*animation_parameter/240), 1, 0, 0);
+    glRotatef(30*cos(8*pi*animation_parameter/180), 1, 0, 0);
     glScalef(0.3, 0.9, 0.3);
     glutSolidCube(0.6);
     glPopMatrix();
@@ -409,25 +410,16 @@ static void on_display(void){
       0, 1, 0
     );
 
-    //light_mode();
+    light_mode();
 
-/*koordinatni sistem*/
-  /*glEnable(GL_LINE_STIPPLE);
-  glBegin(GL_LINES);
-        glColor3f(1, 0, 0);
-        glVertex3f(-5, 0, 0);
-        glVertex3f(20, 0, 0);
-        glColor3f(0, 1, 0);
-        glVertex3f(0, -5, 0);
-        glVertex3f(0, 20, 0);
-        glColor3f(0, 0, 1);
-        glVertex3f(0, 0, -5);
-        glVertex3f(0, 0, 20);
-    glEnd();*/
+
+/*koordinatni sistem
+  iscrtavan je po potrebi
+ drawAxis();
+ */
    
   /* crtanje poda */
   glBindTexture(GL_TEXTURE_2D, names[1]);
-    glColor3f(1, 0, 0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
         glNormal3f(0, 1, 0);
@@ -446,9 +438,6 @@ static void on_display(void){
     glBindTexture(GL_TEXTURE_2D, names[0]);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON); 
-        
-        
-        
         glNormal3f(1, 0, 0);
         glTexCoord2f(0, 0);
         glVertex3f(-9, 0, 9);
@@ -478,7 +467,6 @@ static void on_display(void){
 
      /* crtanje desnog zida */
     
-    glColor3f(0.3, 0.4, 0.6);
     glBindTexture(GL_TEXTURE_2D, names[0]);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
@@ -523,9 +511,7 @@ static void on_display(void){
         glTexCoord2f(0, 1);
         glVertex3f(-9, 5, -9);
     glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
- //glutPostRedisplay();
+  glBindTexture(GL_TEXTURE_2D, 0);//gasenje tekstura, fatalna greska, mukom pronadjena//
 
 //crtanje oruzja
 glPushMatrix();
@@ -537,9 +523,13 @@ glPopMatrix();
  draw_demon();
  glPopMatrix();
 
+//crtanje trona
+  
+
 glPushMatrix();
 draw_well();
 glPopMatrix();
+
     glutSwapBuffers(); 
     
 }
