@@ -11,7 +11,6 @@
 #define FILENAME0 "wall.bmp"
 #define FILENAME1 "floor.bmp"
 #define FILENAME2 "sky.bmp"
-#define FILENAME3 "well.bmp"
 
 #define pi 3.14159265358979323846
 #define TIMER_INTERVAL 20
@@ -27,7 +26,7 @@ static void initialize(void);
 static void on_mouse_motion(int x, int y);
 static void on_timer(int id);
 void draw_demon();
-void draw_well();
+void draw_throne();
 float angle = 0.0;
 float lx = 0.0f;
 float lz = -1.0f;
@@ -46,9 +45,10 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
     glutInitWindowSize(1200, 1200);
-    glutInitWindowPosition(100, 100);
+    glutInitWindowPosition(100, 100);           
+    glutCreateWindow("DoomMatf");     
+    glutFullScreen();           
 
-    glutCreateWindow("DoomMatf");
    
     glutKeyboardFunc(on_keyboard);
     glutReshapeFunc(on_reshape);
@@ -137,21 +137,6 @@ glGenTextures(4, names);
                  image->width, image->height, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
-    image_read(image, FILENAME3);
-    
-    glBindTexture(GL_TEXTURE_2D, names[3]);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                 image->width, image->height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);    
-
  glBindTexture(GL_TEXTURE_2D, 0);
 
     image_done(image);
@@ -185,6 +170,7 @@ static void on_keyboard(unsigned char key, int xx, int yy){
       lx = sin(angle);
       lz = -cos(angle);
       break;
+      //kretanjem pomocu w i s su namestena ogranicenja kako ne bi prolazili kroz zidove
     case 'w':
 
       if (((x + lx*fraction)+lx) <= -7.9 || ((x + lx*fraction)+lx) >= 7.9 )
@@ -214,10 +200,15 @@ static void on_keyboard(unsigned char key, int xx, int yy){
             animation_ongoing = 1;
             glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
           }
+          else if(animation_ongoing)
+            animation_ongoing = 0;
           break;
   }
   glutPostRedisplay();
 }
+
+//kretanje pomocu strelica nisu namestena ogranicenja za zidove, u slucaju da se negde igrac 
+//zaglavi ovo je nacin kako da se odglavi
 void specialKey(int key, int xx, int yy){
   float fraction = 0.1f;
   switch (key)
@@ -247,31 +238,41 @@ void specialKey(int key, int xx, int yy){
 }
 
 static void on_mouse_motion(int x, int y){
+  //cursor se ne prikazuje na ekranu kada je u prozoru
   glutSetCursor(GLUT_CURSOR_NONE);
   
   float angleY = 0;
   float angleX = 0;
   angleY += x;
   angleX += y;
+  angle = angleY;
+  if(angleY > 360/sensitivity){
+    angleY -= 360/sensitivity;
+      angle = angleY;
 
-  if(angleY > 360.0*1/sensitivity){
-    angleY -= 360.0*1/sensitivity;
     }
-  if(angleY < -360.0*1/sensitivity){
-    angleY += 360.0*1/sensitivity;
+  if(angleY < -360/sensitivity){
+    angleY += 360/sensitivity;
+      angle = angleY;
+
     }
-  if(angleX > 89.0*1/sensitivity){
-    angleX = 89.0*1/sensitivity;
+  if(angleX > 89/sensitivity){
+    angleX = 89/sensitivity;
+      angle = angleX;
+
     }
-  if(angleX < -89.0*1/sensitivity){
-    angleX = -89.0*1/sensitivity;
+  if(angleX < -89/sensitivity){
+    angleX = -89/sensitivity;
+      angle = angleX;
+
   } 
   lx = cos(pi/180.0f*angleX*sensitivity)*sin(pi/180.0f*angleY*sensitivity);
   ly = -sin(pi/180.0f*angleX*sensitivity);
   lz = -cos(pi/180.0f*angleX*sensitivity)*cos(pi/180.0f*angleY*sensitivity);    
+  
   glutPostRedisplay();
 }
-void draw_well(){      
+void draw_throne(){      
   glPushMatrix();
   glColor3f(0, 0, 0);
   glScalef(0.7, 1, 0.5);
@@ -303,20 +304,24 @@ void draw_well(){
 
 void draw_dagger(){
     glPushMatrix();
-    glTranslatef(x + 0.2, .8f, z - 0.2);
-    glRotatef(angle*100, x*100+lx, 1.0f + ly, z*100+lz);
-    glScalef(0.7, 0.7, 0.7);
-    glScalef(0.2, 0.2, 0.2);
+
+   glTranslatef(x+lx, 0.6, z+lz + 0.6);//translacija koja pomera mac u skladu sa kamerom
+   glRotatef(-angle, 0, ly, 0);
+   printf("%lf %lf\n", x, z);
+
+   glScalef(0.7, 0.7, 0.7);
+   glScalef(0.2, 0.2, 0.2);
     //glTranslatef(1, 4.0f, 23.6);
     glRotatef(90, 1, 0, 0);
     glPushMatrix();
-       glPushMatrix();
+    glPushMatrix();
+    glColor3f(1, 1, 1);
     glRotatef(90, 1, 0, 0);
     glutSolidCone(0.5, 4, 30, 30);
     glPopMatrix();
   
     double clipping[] = {0, 1, 0, 0};
-    
+    glColor3f(0, 0, 0);
     glClipPlane(GL_CLIP_PLANE0, clipping);
     glEnable(GL_CLIP_PLANE0);
     glScalef(0.6, 4, 0.6);
@@ -330,6 +335,7 @@ void draw_dagger(){
     glPopMatrix();
 
     glPopMatrix();
+
 
 
 }
@@ -409,7 +415,7 @@ static void on_display(void){
       x+lx, 1.0f + ly, z+lz,
       0, 1, 0
     );
-
+    //namestanje svetlosti
     light_mode();
 
 
@@ -524,10 +530,8 @@ glPopMatrix();
  glPopMatrix();
 
 //crtanje trona
-  
-
 glPushMatrix();
-draw_well();
+draw_throne();
 glPopMatrix();
 
     glutSwapBuffers(); 
