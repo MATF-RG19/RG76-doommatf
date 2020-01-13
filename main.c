@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <math.h>
+#include <time.h>
+#include <string.h>
 
 #include "image.h"
 #include "main.h"
@@ -17,6 +19,7 @@
 #define TIMER_ID 0
 static GLuint names[4];
 
+
 static int window_width, window_height;
 static void on_display(void);
 static void on_reshape();
@@ -25,6 +28,7 @@ static void specialKey(int key, int x, int y);
 static void initialize(void);
 static void on_mouse_motion(int x, int y);
 static void on_timer(int id);
+static void on_mouse(int button, int state, int x, int y);
 void draw_demon();
 void draw_throne();
 float angle = 0.0;
@@ -37,27 +41,48 @@ lookx=0,looky=0,lookz=0,upx=0,upy=0,upz=-1;
 double sensitivity = 0.4;
 float animation_parameter = 0;
 int animation_ongoing = 0;
+int attack = 0;
+float dagger_angle = 62;
 
+float randomX;
+float randomZ;
+int Killed = 0;
+
+/*void print(int x, int y)
+{
+//set the position of the text in the window using the x and y coordinates
+glRasterPos2f(20,20);
+//get the length of the string to display
+char string[] = {'S', 'c', 'o', 'r', 'e'};
+int len = (int) strlen("Score:");
+
+//loop to display character by character
+for (int i = 0; i < len; i++) 
+{
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,string[i]);
+}
+
+}*/
 int main(int argc, char **argv)
 {
    
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-    glutInitWindowSize(1200, 1200);
-    glutInitWindowPosition(100, 100);           
+    glutInitWindowSize(600, 600);
+    glutInitWindowPosition(300, 300);           
     glutCreateWindow("DoomMatf");     
     glutFullScreen();           
 
    
     glutKeyboardFunc(on_keyboard);
+    glutMouseFunc(on_mouse);
     glutReshapeFunc(on_reshape);
     glutDisplayFunc(on_display);
     glutSpecialFunc(specialKey);
     glutPassiveMotionFunc(on_mouse_motion);
     initialize();//Teksture
-
-
+    //print(0,0);
     glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_COLOR_MATERIAL);
@@ -162,11 +187,20 @@ static void on_keyboard(unsigned char key, int xx, int yy){
     break;
   case 'd':
     angle += 0.06f;
+    if(dagger_angle < 57)
+        dagger_angle += 0.06;
+      else 
+        dagger_angle -= 0.06;
     lx = sin(angle);
     lz = -cos(angle);
     break;
     case 'a':
       angle -= 0.06f;
+      if(dagger_angle < 57)
+        dagger_angle += 0.06;
+      else 
+        dagger_angle -= 0.06;
+
       lx = sin(angle);
       lz = -cos(angle);
       break;
@@ -196,6 +230,8 @@ static void on_keyboard(unsigned char key, int xx, int yy){
     break;
     //Pritiskom enter demon pocinje da se krece
      case 13:
+          if(!Killed)
+            Killed = 1;
           if(!animation_ongoing){
             animation_ongoing = 1;
             glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
@@ -217,11 +253,21 @@ void specialKey(int key, int xx, int yy){
     angle += 0.06f;
     lx = sin(angle);
     lz = -cos(angle);
+    if(dagger_angle < 57)
+        dagger_angle += 0.06;
+      else 
+        dagger_angle -= 0.06;
+
     break;
     case GLUT_KEY_LEFT:
       angle -= 0.06f;
       lx = sin(angle);
       lz = -cos(angle);
+      if(dagger_angle < 57)
+        dagger_angle += 0.06;
+      else 
+        dagger_angle -= 0.06;
+
       break;
     case GLUT_KEY_UP:
       x += lx*fraction;
@@ -237,67 +283,66 @@ void specialKey(int key, int xx, int yy){
   
 }
 
+static void on_mouse(int button, int state, int x, int y){
+  if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
+    attack = 1;
+  glutPostRedisplay();
+  }
+}
 static void on_mouse_motion(int x, int y){
   //cursor se ne prikazuje na ekranu kada je u prozoru
   glutSetCursor(GLUT_CURSOR_NONE);
   
-  float angleY = 0;
-  float angleX = 0;
-  angleY += x;
-  angleX += y;
-  angle = angleY;
-  if(angleY > 360/sensitivity){
-    angleY -= 360/sensitivity;
-      angle = angleY;
+  float angle_y = 0;
+  float angle_x = 0;
+  angle_y += x;
+  angle_x += y;
 
+  if(angle_y > 360.0*1/sensitivity){
+      angle_y -= 360.0*1/sensitivity;
     }
-  if(angleY < -360/sensitivity){
-    angleY += 360/sensitivity;
-      angle = angleY;
-
+  if(angle_y < -360.0*1/sensitivity){
+      angle_y += 360.0*1/sensitivity;
     }
-  if(angleX > 89/sensitivity){
-    angleX = 89/sensitivity;
-      angle = angleX;
-
+  if(angle_x > 89.0*1/sensitivity){
+      angle_x = 89.0*1/sensitivity;
     }
-  if(angleX < -89/sensitivity){
-    angleX = -89/sensitivity;
-      angle = angleX;
-
-  } 
-  lx = cos(pi/180.0f*angleX*sensitivity)*sin(pi/180.0f*angleY*sensitivity);
-  ly = -sin(pi/180.0f*angleX*sensitivity);
-  lz = -cos(pi/180.0f*angleX*sensitivity)*cos(pi/180.0f*angleY*sensitivity);    
+  if(angle_x < -89.0*1/sensitivity){
+      angle_x = -89.0*1/sensitivity;
+    }
+  lx = cos(pi/180.0f*angle_x*sensitivity)*sin(pi/180.0f*angle_y*sensitivity);
+  ly = -sin(pi/180.0f*angle_x*sensitivity);
+  lz = -cos(pi/180.0f*angle_x*sensitivity)*cos(pi/180.0f*angle_y*sensitivity);    
   
   glutPostRedisplay();
 }
-void draw_throne(){      
+void draw_throne(){     
+  //sediste 
   glPushMatrix();
   glColor3f(0, 0, 0);
   glScalef(0.7, 1, 0.5);
   glutSolidCube(2);
   glPopMatrix();
-
+  //rukohvat
   glColor3f(212, 175, 0);
   glPushMatrix();
-  glTranslatef(0.55, 1, 0.1);
+  glTranslatef(0.55, 1.1, 0.1);
   glScalef(0.1, 0.1, 0.4);
   glutSolidCube(3);
   glPopMatrix();
 
-
+  //rukohvat
   glPushMatrix();
-  glTranslatef(-0.55, 1, 0.1);
+  glTranslatef(-0.55, 1.1, 0.1);
   glScalef(0.1, 0.1, 0.4);
   glutSolidCube(3);
   glPopMatrix();
 
-
+  //naslon
   glPushMatrix();
   glColor3f(1, 0, 0);
-  glTranslatef(0, 1, -0.4);
-  glScalef(1, 1.8, 0.2);
+  glTranslatef(0, 1, -0.3);
+  glScalef(1, 2, 0.2);
   glutSolidCube(1);
   glPopMatrix();
 }
@@ -305,14 +350,36 @@ void draw_throne(){
 void draw_dagger(){
     glPushMatrix();
 
-   glTranslatef(x+lx, 0.6, z+lz + 0.6);//translacija koja pomera mac u skladu sa kamerom
-   glRotatef(-angle, 0, ly, 0);
-   printf("%lf %lf\n", x, z);
+   //glTranslatef(x+lx, 0.6, z+lz/2 + 0.4);//translacija koja pomera mac u skladu sa kamerom
+   if(attack == 1){
+     glTranslatef(lx/2, 0, lz/2);
+     
+    //glTranslatef(0, 0.9, 0);
+    //glScalef(0.6, 0.7, 0.3);
+     printf("%lf %lf\n x y z", x + lx/2, z + lz/2);
+     printf("%lf %lf\n", randomX, randomZ);
+
+      if((abs(x + lx/2)) - abs(randomX) <= 0.6){
+     // z + lz/2 <= randomZ + 0.3 && z + lz/2 >= randomZ - 0.3){
+        Killed = 1;
+        printf("HIT\n");
+      }
+     attack = 0;
+     
+   }
+     /*  x, 1.0f, z,
+      x+lx, 1.0f + ly, z+lz,
+      0, 1, 0*/
+
+        glTranslatef(x + lx, 0.6, z + lz);
+        glRotatef(-angle*dagger_angle, 0, 1, 0);
+    glPushMatrix();    
+    
+    glRotatef(90, 1, 0, 0);
 
    glScalef(0.7, 0.7, 0.7);
    glScalef(0.2, 0.2, 0.2);
-    //glTranslatef(1, 4.0f, 23.6);
-    glRotatef(90, 1, 0, 0);
+  
     glPushMatrix();
     glPushMatrix();
     glColor3f(1, 1, 1);
@@ -336,16 +403,32 @@ void draw_dagger(){
 
     glPopMatrix();
 
+   glPopMatrix();
 
 
 }
 void draw_demon(){
    // glScalef(5, 5, 5);
-    glRotatef(animation_parameter, 0, 1, 0);
-   glTranslatef(-4, 0, 0);
+    //glRotatef(animation_parameter, 0, 1, 0);
 
-    
-   //rogovi
+  srand(time(NULL));
+
+ glScalef(0.7, 1, 0.5);
+  glutSolidCube(2);
+  //spawnuju se demoni
+  if(Killed){
+  randomX = rand()%15 - 8;
+  randomZ = rand()%15 - 8;
+  if(randomX >= 0.7 || randomX <= -0.7){
+  glTranslatef(randomX, 0, randomZ);
+  Killed = 0;
+  }
+  }
+  else{
+      glTranslatef(randomX, 0, randomZ);
+
+  }
+    //rogovi
    glColor3f(0, 0, 0);
     glPushMatrix();
     glRotatef(-90, 1, 0, 0);
@@ -519,19 +602,21 @@ static void on_display(void){
     glEnd();
   glBindTexture(GL_TEXTURE_2D, 0);//gasenje tekstura, fatalna greska, mukom pronadjena//
 
-//crtanje oruzja
-glPushMatrix();
- draw_dagger();
-glPopMatrix();
-
- //crtanje neprijatelja
- glPushMatrix();
- draw_demon();
- glPopMatrix();
-
 //crtanje trona
 glPushMatrix();
 draw_throne();
+glPopMatrix();
+
+ //crtanje neprijatelja
+ 
+ glPushMatrix();
+ draw_demon();
+ glPopMatrix();
+ 
+
+//crtanje noza
+glPushMatrix();
+ draw_dagger();
 glPopMatrix();
 
     glutSwapBuffers(); 
