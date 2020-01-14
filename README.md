@@ -1,11 +1,11 @@
-#ψ Ḏ̶̥͈̀̄̾̍̾̃ǫ̴̲̂̋́͋͘o̷͉̜͊͒̎̈͘͝ḿ̵̧̘̝̹̐̆Ṁ̴̢̰͇̙̳å̷̞̎̍͠t̷̖̰̖̔͒̕f̵̞͖́̕ ψ
+# +DoomMatf+
 
 ### :memo: Opis igre:
 Igrac je DemonSlayer koji je dosao u pakao da ubija demone.
 Cilj igre je ubiti sto vise demona.
 
 ### :video_game: Kontrole:
-##Kretanje uz pomoc misa i tastature
+### :memo:Kretanje uz pomoc misa i tastature
 <kbd>Enter</kbd> Start<br>
 <kbd>w</kbd> Kretanje Napred<br>
 <kbd>s</kbd> Kretanje Nazad<br>
@@ -16,7 +16,7 @@ Cilj igre je ubiti sto vise demona.
 <kbd>LeftClick</kbd>Napad<br>
 <kbd>f</kbd>FullScreen<br>
 <kbd>m</kbd>ExitFullScreen<br>
-<kbd>Esc</kbd>Gasenje Igrice<br
+<kbd>Esc</kbd>Gasenje Igrice<br>
 
 ___
 ### :wrench: Pokretanje:
