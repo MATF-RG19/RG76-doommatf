@@ -1,22 +1,22 @@
-PROGARM = main
+PROGARM = DoomMatf
 CC = gcc
 CFAGS = -g -Wall -I/usr/X11R6/include -I/usr/pkg/include
 LDLIBS = -lGL -lGLU -lglut -lm
 
-$(PROGARM): main.o image.o light.o axis.o
-	$(CC) $(CFLAGS) -o $(PROGARM) image.o light.o main.o axis.o $(LDLIBS)
+$(PROGARM): DoomMatf.o image.o light.o axis.o
+	$(CC) $(CFLAGS) -o $(PROGARM) image.o light.o DoomMatf.o axis.o $(LDLIBS)
 
-main.o: main.c main.h
-	$(CC) $(CFLAGS) -c main.c -o main.o $(LDLIBS)
+DoomMatf.o: src/DoomMatf.c src/DoomMatf.h
+	$(CC) $(CFLAGS) -c src/DoomMatf.c -o DoomMatf.o $(LDLIBS)
 
-image.o: image.c image.h
-	$(CC) $(CFLAGS) -c image.c $(LDLIBS)
+image.o: src/image.c src/image.h
+	$(CC) $(CFLAGS) -c src/image.c $(LDLIBS)
 
-light.o: light.c light.h
-	$(CC) $(CFLAGS) -c light.c $(LDLIBS)
+light.o: src/light.c src/light.h
+	$(CC) $(CFLAGS) -c src/light.c $(LDLIBS)
 
-axis.o: axis.c axis.h
-	$(CC) $(CFLAGS) -c axis.c $(LDLIBS)
+axis.o: src/axis.c src/axis.h
+	$(CC) $(CFLAGS) -c src/axis.c $(LDLIBS)
 .PHONY: clean 
 
 clean: 
