@@ -427,9 +427,9 @@ void draw_dagger(){
    if(attack == 1){
      glTranslatef(lx/2, 0, lz/2);
    }
-        //translacija koja pomera mac
+        //translacija koja pomera dagger
         glTranslatef(x + lx, 0.6, z + lz);
-        //rotiranje maca
+        //rotiranje daggera
         glRotatef(-angle*dagger_angle, 0, 1, 0);
     glPushMatrix();    
     
