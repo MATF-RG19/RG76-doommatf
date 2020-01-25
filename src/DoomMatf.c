@@ -1,3 +1,21 @@
+/*
+  Jovanović Slobodan, 186/2017 
+  RG76-doommatf
+
+  Kod za teksture preuzet sa casa,
+  Kod za svetlost je uradjena po uzoru
+  na skelet koda za kolokvijum.
+
+  Za kretanje je kamere je korisno bilo:
+  http://www.lighthouse3d.com/tutorials/glut-tutorial/
+  keyboard-example-moving-around-the-world/
+
+  Upravljaje misem:
+  https://www.lighthouse3d.com/tutorials/glut-tutorial/
+  mouse-putting-it-all-together/
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
@@ -45,7 +63,7 @@ float angle = 0.0;
 float lx = 0.0f;
 float lz = -1.0f;
 float ly = 0;
-float x = 0.0f, z=5.0f;
+float x = 0.0f, z=5.0f, y = 0;
 //promenljiva koja regulise brzinu misa
 double sensitivity = 0.4;
 //animacioni parametri za pomeranje nogu demona
@@ -58,7 +76,10 @@ float dagger_angle = 62;
 //promenljive koje vred. dobijaju rand-om za generisanje demona
 float randomX;
 float randomZ;
-
+//Brojac koliko demona je ubijeno
+int killCount = 0;
+//Po ubijanju 10 demona End oznacava kraj igre
+int End = 0;
 int main(int argc, char **argv)
 {
    
@@ -173,12 +194,25 @@ glGenTextures(3, names);
 static void on_timer(int id){
   if(id != TIMER_ID)
     return;
-
+ 
   //provera da li je pritisnut levi klik koji oznacava napad, pa provera da li smo pogodili demona
   //ako jesmo pravimo nove koordinate za sledeceg demona
   if(attack == 1){
     if(randomX + 0.8 >= x + lx && randomX - 0.8 <= x + lx
             && randomZ + 0.8 >= z + lz && randomZ - 0.8 <= z + lz){
+              killCount++;
+              if(killCount == 10){
+                x = 0;
+                z = 0;
+                lx = 100;
+                ly = 10000;
+                lz = 100;
+                y += 1;
+                glutPostRedisplay();
+                End = 1;
+              glutPostRedisplay();
+
+              }
           randomX = rand()%15 - 8;
           randomZ = rand()%15 - 8;
       }
@@ -197,12 +231,16 @@ static void on_timer(int id){
       glutPostRedisplay();
 }
 static void on_keyboard(unsigned char key, int xx, int yy){
+  
   float fraction = 0.1f;
   switch (key)
   {
     case 27://dugme esc za gasenje programa
     exit(0);
     break;
+  if(End){
+  return;
+
   case 'd':
     //postavljena su ogranicenja za dagger_angle kako bi se dagger uvek rotirao normalno
     angle += 0.06f;
@@ -244,8 +282,11 @@ static void on_keyboard(unsigned char key, int xx, int yy){
       x -= lx*fraction;
       z -= lz*fraction;
       break;
+  }
     //Start
      case 13:
+          if(End)
+            exit(EXIT_SUCCESS);
           if(!animation_ongoing){
             animation_ongoing = 1;
             glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
@@ -269,6 +310,8 @@ static void on_keyboard(unsigned char key, int xx, int yy){
 //kretanje pomocu strelica nisu namestena ogranicenja za zidove, u slucaju da se negde igrac 
 //zaglavi ovo je nacin kako da se odglavi
 void specialKey(int key, int xx, int yy){
+  if(End)
+  return;
   float fraction = 0.1f;
   switch (key)
   {
@@ -316,6 +359,8 @@ static void on_mouse(int button, int state, int x, int y){
 }
 static void on_mouse_motion(int x, int y){//kretanje kamere pomocu misa
   //cursor se ne prikazuje na ekranu kada je u prozoru
+  if(End)
+  return;
   glutSetCursor(GLUT_CURSOR_NONE);
   
   float angle_y = 0;
@@ -496,7 +541,7 @@ static void on_display(void){
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   gluLookAt(
-      x, 1.0f, z,
+      x, 1.0f + y, z,
       x+lx, 1.0f + ly, z+lz,
       0, 1, 0
     );
