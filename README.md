@@ -11,8 +11,6 @@ Cilj igre je ubiti sto vise demona. Pobednika u igri nema/
 <kbd>Enter</kbd> Start<br>
 <kbd>w</kbd> Kretanje Napred<br>
 <kbd>s</kbd> Kretanje Nazad<br>
-<kbd>StrelicaGore</kbd> Kretanje Napred<br>
-<kbd>StrelicaDole</kbd> Kretanje Nazad<br>
 <kbd>StrelicaLevo</kbd>Okretanje i upravljanje nozem<br>
 <kbd>StrelicaDesno</kbd>Okretanje i upravljanje nozem<br>
 <kbd>LeftClick</kbd>Napad<br>
