@@ -2,7 +2,7 @@
 
 ### :memo: Opis igre:
 Igrac je DemonSlayer koji je dosao u pakao da ubija demone.
-Cilj igre je ubiti sto vise demona. Pobednika u igri nema/
+Cilj igre je ubiti sto vise demona. Pobednika u igri nema
 # :fire:Igrac ce vecno goreti u paklu
 
 
